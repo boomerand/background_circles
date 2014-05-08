@@ -1,0 +1,126 @@
+<html>
+<head>
+	<title>Javascript Demo - Bubbles</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<style type="text/css">
+	body {
+		background-color:white;
+	}
+	</style>
+	</head>
+<body>
+
+	<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+	<script>
+	// document.onclick = function(location) 
+	// {console.log(location.offsetX);};
+	document.onclick = function(e)
+	{
+		//console.log(location);
+		// create circle based on position of click
+		var colors = colorPicker();
+	    var color_rgb = {
+	    				redVal: colors.redVal,
+	    				blueVal: colors.blueVal,
+	    				greenVal: colors.greenVal};
+		createCircle(e.x,e.y,15,color_rgb);
+	}
+	// document.mousemove = function(location)
+	// {	
+	// 	createCircle(location.offsetX,location.offsetY,15);
+	// }
+
+
+	//because we haven't learned how to do OOP in Javascript, we're going to just use regular functions.  Know that with OOP, there is even a better way to do this
+	var counter = 1;
+	var circles = {};
+
+	//read: http://stackoverflow.com/questions/3642035/jquerys-append-not-working-with-svg-element
+	//create an SVG element
+	function makeSVG(tag, attrs) {
+        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs)
+        {
+            el.setAttribute(k, attrs[k]);
+        }
+        return el;
+    }
+    // create a function to pick random colors and return the values as an object
+    var colorPicker = function() {
+    	var redVal = Math.round(Math.random()*255);
+  		var	greenVal = Math.round(Math.random()*255);
+ 		var	blueVal = Math.round(Math.random()*255);
+    	return {
+    		redVal: redVal,
+    		greenVal: greenVal,
+    		blueVal: blueVal
+    	}
+    }
+
+    //draws a star
+	function createCircle(cx,cy,r,colors)
+	{
+		var circle = makeSVG('circle', 
+			{ cx: cx,
+			  cy: cy,
+			  r:  r,
+			  id: 'circle_'+counter,
+			  style: "fill: rgb("+colors.redVal+","+colors.greenVal+","+colors.blueVal+");"
+			});
+		circle.colors = colors;
+		//the key will be the HTML id and the value will be the radius
+		circles['circle_'+counter] = { radius: r,
+									   colorss: colors };
+
+		counter++;
+		document.getElementById('svg').appendChild(circle);
+	}
+
+	//go through all the circles and update its radius and background color
+	function updateCircles()
+	{
+		// console.log(circles);
+		for(circle in circles)
+		{
+			var el = document.getElementById(circle);
+			var red = circles[circle].colorss.redVal+parseInt(circles[circle].radius/90*200);
+			var green = circles[circle].colorss.greenVal+parseInt(circles[circle].radius/90*200);
+			var blue = circles[circle].colorss.blueVal+parseInt(circles[circle].radius/90*200);
+			circles[circle].radius = circles[circle].radius+1;
+
+			//update the radius and the background color
+			el.setAttribute("r", circles[circle].radius);
+			el.setAttribute("style", "fill: rgb("+red+","+green+","+blue+"); ");
+
+			//if the circle radius is greater than 80, remove the dom and remove its value in the circles variable/object
+			if(circles[circle].radius > 150)
+			{
+				document.getElementById('svg').removeChild(el);
+				delete circles[circle];
+			}
+		}
+	}
+	//main loop
+	function mainLoop()
+    {
+        // create a new colors object to pass to each circle
+        var colors = colorPicker();
+	    var color_rgb = {
+	    				redVal: colors.redVal,
+	    				blueVal: colors.blueVal,
+	    				greenVal: colors.greenVal};
+    	//create a new circle of radius 15 every time the loop is run
+    	createCircle(Math.random()*document.body.clientWidth, Math.random()*document.body.clientHeight, 15, color_rgb);
+    	
+    	//update the circle size and background color
+    	updateCircles();	
+    }
+	
+	//execute the mainLoop funtion every 30 milliseconds
+	setInterval(mainLoop, 30);
+
+	</script>
+
+</body>
+</html>
